@@ -45,13 +45,7 @@ cd Rhythm-Sync-Game
 git checkout dev
 ```
 
-### Step 2: Create a virtual environment
-
-```
-python -m venv RhythmGameEnv
-```
-
-### Step 3: Activate the virtual environment
+### Step 2: Activate the virtual environment
 
 - **Windows:**
   ```
@@ -63,13 +57,13 @@ python -m venv RhythmGameEnv
   source RhythmGameEnv/bin/activate
   ```
 
-### Step 4: Install dependencies (if `requirements.txt` is available)
+### Step 3: Install dependencies (if `requirements.txt` is available)
 
 ```
 pip install -r requirements.txt
 ```
 
-### Step 5: Run the backend
+### Step 4: Run the backend
 
 ```
 python rhythm_backend.py

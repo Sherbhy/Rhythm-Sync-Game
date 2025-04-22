@@ -1,0 +1,7 @@
+
+numpy==1.23.5
+scipy==1.10.1
+matplotlib==3.7.1
+PyAudio==0.2.13
+keyboard==0.13.5
+pygame==2.6.1

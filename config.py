@@ -2,7 +2,7 @@
 # Central configuration file for the Mackey Mackey game
 
 # Path to music files
-MUSIC_DIR = r"C:\Users\Surbhi Agarwal\Music"
+MUSIC_DIR = r""
 
 # Song database with BPM information
 SONGS = {

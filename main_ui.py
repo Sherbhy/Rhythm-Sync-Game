@@ -41,20 +41,12 @@ GRAY = (150, 150, 180)
 DARK_GRAY = (60, 60, 90)
 TRANSPARENT_BLACK = (0, 0, 0, 180)
 
-# Fonts - Using system fonts for better appearance
-try:
-    TITLE_FONT = pygame.font.Font(None, 64)
-    SUBTITLE_FONT = pygame.font.Font(None, 48)
-    BUTTON_FONT = pygame.font.Font(None, 36)
-    TEXT_FONT = pygame.font.Font(None, 28)
-    SMALL_FONT = pygame.font.Font(None, 22)
-except:
-    # Fallback to SysFont if Font fails
-    TITLE_FONT = pygame.font.SysFont('Arial', 48, bold=True)
-    SUBTITLE_FONT = pygame.font.SysFont('Arial', 36, bold=True)
-    BUTTON_FONT = pygame.font.SysFont('Arial', 28, bold=True)
-    TEXT_FONT = pygame.font.SysFont('Arial', 24)
-    SMALL_FONT = pygame.font.SysFont('Arial', 18)
+# Modify the font sizes to be smaller for better fit
+TITLE_FONT = pygame.font.Font(None, 56) if pygame.font.get_default_font() else pygame.font.SysFont('Arial', 42, bold=True)
+SUBTITLE_FONT = pygame.font.Font(None, 42) if pygame.font.get_default_font() else pygame.font.SysFont('Arial', 32, bold=True)
+BUTTON_FONT = pygame.font.Font(None, 32) if pygame.font.get_default_font() else pygame.font.SysFont('Arial', 24, bold=True)
+TEXT_FONT = pygame.font.Font(None, 24) if pygame.font.get_default_font() else pygame.font.SysFont('Arial', 20)
+SMALL_FONT = pygame.font.Font(None, 18) if pygame.font.get_default_font() else pygame.font.SysFont('Arial', 16)
 
 # Debug mode
 DEBUG = True
@@ -707,16 +699,17 @@ class RhythmGameUI:
         # Draw animated background
         self.draw_animated_background()
         
+        # Remove the game header section
         # Draw game header - Fixed positioning and styling to ensure proper display
-        header_width = 300
-        header_height = 60
-        self.draw_panel(20, 20, header_width, header_height, "")
-        
+        # header_width = 300
+        # header_height = 60
+        # self.draw_panel(20, 20, header_width, header_height, "")
+
         # Draw "Rhythm Sync Game" text centered in the header panel
-        header_text = "Rhythm Sync Game"
-        header_surf = SUBTITLE_FONT.render(header_text, True, WHITE)
-        header_rect = header_surf.get_rect(center=(20 + header_width // 2, 20 + header_height // 2))
-        self.screen.blit(header_surf, header_rect)
+        # header_text = "Rhythm Sync Game"
+        # header_surf = SUBTITLE_FONT.render(header_text, True, WHITE)
+        # header_rect = header_surf.get_rect(center=(20 + header_width // 2, 20 + header_height // 2))
+        # self.screen.blit(header_surf, header_rect)
         
         # Draw current song info with modern panel - Fixed position and adjusted width
         if self.game and self.game.current_song:
@@ -819,27 +812,26 @@ class RhythmGameUI:
                 self.screen.blit(shadow_surf, shadow_rect)
                 self.screen.blit(clap_surf, clap_rect)
             
-            # Draw time remaining with modern progress bar - Positioned further right to avoid overlap
+            # Draw time remaining with modern progress bar - Positioned below the song info
             elapsed = current_time - self.game.start_time
             remaining = max(0, self.game.game_duration - elapsed)
             progress = 1 - (remaining / self.game.game_duration)
-            
-            # Draw progress bar with better styling - Moved to right side with more space
-            bar_width = 300
-            bar_height = 20
-            bar_x = SCREEN_WIDTH - bar_width - 30
-            bar_y = 30
-            
-            # Draw time text with better styling - Positioned to not overlap
+
+            # Draw time text with better styling - Positioned below the song info
             time_text = f"Time: {remaining:.1f}s"
             time_surf = TEXT_FONT.render(time_text, True, WHITE)
-            # Position the time text more to the right
-            time_rect = time_surf.get_rect(center=(SCREEN_WIDTH - bar_width//2 - 30, bar_y + bar_height//2))
+            time_rect = time_surf.get_rect(center=(now_playing_x + now_playing_width // 2, 130))
             self.screen.blit(time_surf, time_rect)
-            
+
+            # Draw progress bar with better styling - Positioned below the time text
+            bar_width = 300
+            bar_height = 20
+            bar_x = now_playing_x + (now_playing_width - bar_width) // 2
+            bar_y = 150
+
             # Draw background
             pygame.draw.rect(self.screen, DARK_GRAY, (bar_x, bar_y, bar_width, bar_height), border_radius=bar_height//2)
-            
+
             # Draw fill with gradient
             if progress > 0:
                 fill_width = int(bar_width * progress)
@@ -1066,6 +1058,7 @@ class RhythmGameUI:
         """Return a lighter version of the color."""
         return tuple(min(c + amount, 255) for c in color)
         
+    # Replace the draw_results method with an improved version
     def draw_results(self):
         # Fill background with solid color
         self.screen.fill(PRIMARY_BG)
@@ -1073,14 +1066,28 @@ class RhythmGameUI:
         # Draw animated background
         self.draw_animated_background()
         
-        # Draw title with modern panel
-        self.draw_panel(SCREEN_WIDTH // 2 - 200, 50, 400, 80, "Game Results")
+        # Draw title with modern panel - positioned higher
+        title_panel_width = 400
+        title_panel_height = 70
+        title_panel_x = SCREEN_WIDTH // 2 - title_panel_width // 2
+        title_panel_y = 30
+        self.draw_panel(title_panel_x, title_panel_y, title_panel_width, title_panel_height, "")
+        
+        # Draw "Game Results" text centered in the panel
+        title_text = "Game Results"
+        title_surf = SUBTITLE_FONT.render(title_text, True, WHITE)
+        title_rect = title_surf.get_rect(center=(title_panel_x + title_panel_width // 2, title_panel_y + title_panel_height // 2))
+        self.screen.blit(title_surf, title_rect)
+        
+        # Create a panel for scores - with more space below the title
+        scores_panel_width = 700
+        scores_panel_height = 300  # Reduced height
+        scores_panel_x = SCREEN_WIDTH // 2 - scores_panel_width // 2
+        scores_panel_y = 120  # More space after title
+        self.draw_panel(scores_panel_x, scores_panel_y, scores_panel_width, scores_panel_height, "Player Scores")
         
         # Draw scores with better styling
         if self.score_display:
-            # Create a panel for scores
-            self.draw_panel(SCREEN_WIDTH // 2 - 350, 150, 700, 400, "Player Scores")
-            
             # Determine number of players
             player_count = len(self.score_display)
             
@@ -1089,16 +1096,17 @@ class RhythmGameUI:
                 player_id = list(self.score_display.keys())[0]
                 self.draw_result_player_panel(
                     SCREEN_WIDTH // 2 - 150,
+                    scores_panel_y + 60,
+                    300,
                     200,
-                    300,
-                    300,
                     player_id,
                     self.score_display[player_id]
                 )
             else:
-                # Multiple players - arrange side by side
-                panel_width = 300
-                spacing = 50
+                # Multiple players - arrange side by side with better spacing
+                panel_width = 260  # Smaller panels
+                panel_height = 200  # Shorter panels
+                spacing = 100  # More spacing between panels
                 total_width = panel_width * player_count + spacing * (player_count - 1)
                 start_x = SCREEN_WIDTH // 2 - total_width // 2
                 
@@ -1106,100 +1114,124 @@ class RhythmGameUI:
                     x = start_x + i * (panel_width + spacing)
                     self.draw_result_player_panel(
                         x,
-                        200,
+                        scores_panel_y + 60,  # Position lower within the scores panel
                         panel_width,
-                        300,
+                        panel_height,
                         player_id,
                         score
                     )
-            
-            # Draw winner with special styling - only if there's a valid winner
-            if self.game and hasattr(self.game, 'scoring'):
-                # Get all scores to check for ties
-                all_scores = self.game.scoring.get_all_scores()
-                
-                # Find the highest on-beat score
-                highest_score = 0
-                for player_data in all_scores.values():
-                    if player_data['on_beat'] > highest_score:
-                        highest_score = player_data['on_beat']
-                
-                # Check if there's a tie (multiple players with the highest score)
-                tied_players = []
-                for player_id, player_data in all_scores.items():
-                    if player_data['on_beat'] == highest_score and highest_score > 0:
-                        tied_players.append(player_id)
-                
-                # Display appropriate message based on whether there's a tie
-                if len(tied_players) > 1:
-                    # Create tie panel
-                    tie_panel = pygame.Surface((600, 100), pygame.SRCALPHA)
-                    pygame.draw.rect(tie_panel, (*SUCCESS_COLOR[:3], 100), tie_panel.get_rect(), border_radius=15)
-                    self.screen.blit(tie_panel, (SCREEN_WIDTH // 2 - 300, SCREEN_HEIGHT - 250))
-                    
-                    # Tie text with glow effect
-                    tie_text = f"It's a tie! Players {', '.join(str(p) for p in tied_players)} tied with {highest_score} on-beat claps!"
-                    
-                    for i in range(3):
-                        alpha = 100 - i * 30
-                        glow_surf = SUBTITLE_FONT.render(tie_text, True, (*SUCCESS_COLOR[:3], alpha))
-                        glow_rect = glow_surf.get_rect(center=(SCREEN_WIDTH // 2 + i, SCREEN_HEIGHT - 200 + i))
-                        self.screen.blit(glow_surf, glow_rect)
-                    
-                    tie_surf = SUBTITLE_FONT.render(tie_text, True, WHITE)
-                    tie_rect = tie_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 200))
-                    self.screen.blit(tie_surf, tie_rect)
-                    
-                elif len(tied_players) == 1:
-                    # Single winner
-                    winner = self.game.scoring.get_winner()
-                    player_id, score = winner
-                    
-                    # Create winner panel
-                    winner_panel = pygame.Surface((600, 100), pygame.SRCALPHA)
-                    pygame.draw.rect(winner_panel, (*SUCCESS_COLOR[:3], 100), winner_panel.get_rect(), border_radius=15)
-                    self.screen.blit(winner_panel, (SCREEN_WIDTH // 2 - 300, SCREEN_HEIGHT - 250))
-                    
-                    # Winner text with glow effect
-                    winner_text = f"Winner: Player {player_id} with {score['on_beat']} on-beat claps!"
-                    
-                    for i in range(3):
-                        alpha = 100 - i * 30
-                        glow_surf = SUBTITLE_FONT.render(winner_text, True, (*SUCCESS_COLOR[:3], alpha))
-                        glow_rect = glow_surf.get_rect(center=(SCREEN_WIDTH // 2 + i, SCREEN_HEIGHT - 200 + i))
-                        self.screen.blit(glow_surf, glow_rect)
-                    
-                    winner_surf = SUBTITLE_FONT.render(winner_text, True, WHITE)
-                    winner_rect = winner_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 200))
-                    self.screen.blit(winner_surf, winner_rect)
         
-        # Draw next song info with modern styling
+        # Draw winner with special styling - only if there's a valid winner
+        if self.game and hasattr(self.game, 'scoring'):
+            # Get all scores to check for ties
+            all_scores = self.game.scoring.get_all_scores()
+            
+            # Find the highest on-beat score
+            highest_score = 0
+            for player_data in all_scores.values():
+                if player_data['on_beat'] > highest_score:
+                    highest_score = player_data['on_beat']
+            
+            # Check if there's a tie (multiple players with the highest score)
+            tied_players = []
+            for player_id, player_data in all_scores.items():
+                if player_data['on_beat'] == highest_score and highest_score > 0:
+                    tied_players.append(player_id)
+            
+            # Display appropriate message based on whether there's a tie
+            if len(tied_players) > 1:
+                # Create tie panel with better positioning - more space after scores panel
+                tie_panel_width = 500
+                tie_panel_height = 60
+                tie_panel_x = SCREEN_WIDTH // 2 - tie_panel_width // 2
+                tie_panel_y = scores_panel_y + scores_panel_height + 30  # More space after scores panel
+                
+                tie_panel = pygame.Surface((tie_panel_width, tie_panel_height), pygame.SRCALPHA)
+                pygame.draw.rect(tie_panel, (*SUCCESS_COLOR[:3], 100), tie_panel.get_rect(), border_radius=15)
+                self.screen.blit(tie_panel, (tie_panel_x, tie_panel_y))
+                
+                # Tie text with glow effect - smaller font
+                tie_text = f"It's a tie! Players {', '.join(str(p) for p in tied_players)} tied with {highest_score} on-beat claps!"
+                
+                # Use TEXT_FONT instead of SUBTITLE_FONT for smaller text
+                for i in range(3):
+                    alpha = 100 - i * 30
+                    glow_surf = TEXT_FONT.render(tie_text, True, (*SUCCESS_COLOR[:3], alpha))
+                    glow_rect = glow_surf.get_rect(center=(SCREEN_WIDTH // 2 + i, tie_panel_y + tie_panel_height // 2 + i))
+                    self.screen.blit(glow_surf, glow_rect)
+                
+                tie_surf = TEXT_FONT.render(tie_text, True, WHITE)
+                tie_rect = tie_surf.get_rect(center=(SCREEN_WIDTH // 2, tie_panel_y + tie_panel_height // 2))
+                self.screen.blit(tie_surf, tie_rect)
+                
+            elif len(tied_players) == 1:
+                # Single winner with better positioning - more space after scores panel
+                winner = self.game.scoring.get_winner()
+                player_id, score = winner
+                
+                # Create winner panel
+                winner_panel_width = 500
+                winner_panel_height = 60
+                winner_panel_x = SCREEN_WIDTH // 2 - winner_panel_width // 2
+                winner_panel_y = scores_panel_y + scores_panel_height + 30  # More space after scores panel
+                
+                winner_panel = pygame.Surface((winner_panel_width, winner_panel_height), pygame.SRCALPHA)
+                pygame.draw.rect(winner_panel, (*SUCCESS_COLOR[:3], 100), winner_panel.get_rect(), border_radius=15)
+                self.screen.blit(winner_panel, (winner_panel_x, winner_panel_y))
+                
+                # Winner text with glow effect - smaller font
+                winner_text = f"Winner: Player {player_id} with {score['on_beat']} on-beat claps!"
+                
+                # Use TEXT_FONT instead of SUBTITLE_FONT for smaller text
+                for i in range(3):
+                    alpha = 100 - i * 30
+                    glow_surf = TEXT_FONT.render(winner_text, True, (*SUCCESS_COLOR[:3], alpha))
+                    glow_rect = glow_surf.get_rect(center=(SCREEN_WIDTH // 2 + i, winner_panel_y + winner_panel_height // 2 + i))
+                    self.screen.blit(glow_surf, glow_rect)
+                
+                winner_surf = TEXT_FONT.render(winner_text, True, WHITE)
+                winner_rect = winner_surf.get_rect(center=(SCREEN_WIDTH // 2, winner_panel_y + winner_panel_height // 2))
+                self.screen.blit(winner_surf, winner_rect)
+
+        # Draw next song info with modern styling and better spacing
         if self.game and self.game.current_song:
-            self.draw_panel(SCREEN_WIDTH // 2 - 250, SCREEN_HEIGHT - 150, 500, 80, "Next Song")
+            next_song_panel_width = 400
+            next_song_panel_height = 60
+            next_song_panel_x = SCREEN_WIDTH // 2 - next_song_panel_width // 2
+            
+            # Position with more gap after winner panel
+            if len(self.score_display) > 0 and hasattr(self.game, 'scoring'):
+                next_song_panel_y = scores_panel_y + scores_panel_height + 110  # More space after winner panel
+            else:
+                next_song_panel_y = scores_panel_y + scores_panel_height + 30
+        
+            self.draw_panel(next_song_panel_x, next_song_panel_y, next_song_panel_width, next_song_panel_height, "Next Song")
             
             next_song_text = f"{self.game.current_song} ({self.game.current_bpm} BPM)"
             next_song_surf = TEXT_FONT.render(next_song_text, True, WHITE)
-            next_song_rect = next_song_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100))
+            next_song_rect = next_song_surf.get_rect(center=(SCREEN_WIDTH // 2, next_song_panel_y + next_song_panel_height // 2 + 5))
             self.screen.blit(next_song_surf, next_song_rect)
+
+        # Draw buttons with better spacing and alignment
+        button_y = SCREEN_HEIGHT - 80  # Position buttons lower
         
-        # Draw buttons with better spacing
         play_again_button = Button(
             SCREEN_WIDTH // 2 - 310, 
-            SCREEN_HEIGHT - 80, 
+            button_y, 
             300, 
             60, 
             "PLAY AGAIN", 
-            color=ACCENT_COLOR,  # Changed from SUCCESS_COLOR to ACCENT_COLOR
+            color=ACCENT_COLOR,
             action=self.start_game
         )
 
         return_button = Button(
             SCREEN_WIDTH // 2 + 10, 
-            SCREEN_HEIGHT - 80, 
+            button_y, 
             300, 
             60, 
             "RETURN TO MENU", 
-            color=ACCENT_COLOR,  # Changed from WARNING_COLOR to ACCENT_COLOR
+            color=ACCENT_COLOR,
             action=self.return_to_menu
         )
         
@@ -1209,6 +1241,7 @@ class RhythmGameUI:
         play_again_button.draw(self.screen)
         return_button.draw(self.screen)
     
+    # Replace the draw_result_player_panel method with an improved version
     def draw_result_player_panel(self, x, y, width, height, player_id, score):
         """Draw a player panel in the results screen."""
         # Draw panel background
@@ -1218,22 +1251,22 @@ class RhythmGameUI:
         
         # Draw player header
         player_color = ACCENT_COLOR if player_id == 1 else ACCENT_SECONDARY
-        header_rect = pygame.Rect(x, y, width, 50)
+        header_rect = pygame.Rect(x, y, width, 40)  # Smaller header
         pygame.draw.rect(self.screen, player_color, header_rect, border_radius=15)
         pygame.draw.rect(self.screen, self.lighten_color(player_color, 30), header_rect, 1, border_radius=15)
         
         # Only round the top corners
-        bottom_rect = pygame.Rect(x, y + 25, width, 25)
+        bottom_rect = pygame.Rect(x, y + 20, width, 20)
         pygame.draw.rect(self.screen, player_color, bottom_rect)
         
         # Player title
         player_text = f"Player {player_id}"
-        player_surf = SUBTITLE_FONT.render(player_text, True, WHITE)
-        player_rect = player_surf.get_rect(center=(x + width // 2, y + 25))
+        player_surf = TEXT_FONT.render(player_text, True, WHITE)  # Smaller font
+        player_rect = player_surf.get_rect(center=(x + width // 2, y + 20))
         self.screen.blit(player_surf, player_rect)
         
         # Draw score details with better layout
-        y_offset = y + 70
+        y_offset = y + 60  # Start lower
         
         details = [
             ("Total Claps:", f"{score['claps']}"),
@@ -1243,16 +1276,16 @@ class RhythmGameUI:
         
         for label, value in details:
             # Label
-            label_surf = TEXT_FONT.render(label, True, GRAY)
-            label_rect = label_surf.get_rect(x=x + 20, y=y_offset)
+            label_surf = SMALL_FONT.render(label, True, GRAY)  # Smaller font
+            label_rect = label_surf.get_rect(x=x + 15, y=y_offset)
             self.screen.blit(label_surf, label_rect)
             
             # Value
-            value_surf = TEXT_FONT.render(value, True, WHITE)
-            value_rect = value_surf.get_rect(right=x + width - 20, y=y_offset)
+            value_surf = SMALL_FONT.render(value, True, WHITE)  # Smaller font
+            value_rect = value_surf.get_rect(right=x + width - 15, y=y_offset)
             self.screen.blit(value_surf, value_rect)
             
-            y_offset += 40
+            y_offset += 30  # Less space between lines
         
         # No accuracy display
         

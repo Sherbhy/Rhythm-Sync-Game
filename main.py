@@ -1,10 +1,8 @@
+# main.py
 import pygame
 import sys
 import time
 import os
-
-# Import the UI version of the game
-from main_ui import RhythmGameUI
 
 # Import game modules
 from config import (
@@ -97,8 +95,8 @@ def initialize_game(input_mode, num_players=1):
     return game
 
 
-def run_console_game():
-    """Run the console-based version of the game."""
+def main():
+    """Main function to run the game."""
     print("======================================")
     print("Welcome to Mackey Mackey Rhythm Game!")
     print("======================================")
@@ -184,24 +182,6 @@ def run_console_game():
     pygame.quit()
     print("Thanks for playing!")
     sys.exit()
-
-
-def run_ui_game():
-    """Run the UI version of the game."""
-    # Create and run the UI version
-    ui = RhythmGameUI()
-    ui.run()
-
-
-def main():
-    """Main function to run the game."""
-    # Uncomment one of these lines to choose which version to run
-    
-    # Run the UI version (graphical interface)
-    run_ui_game()
-    
-    # Or run the console version (text-based)
-    # run_console_game()
 
 
 if __name__ == "__main__":

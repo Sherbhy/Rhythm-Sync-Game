@@ -707,27 +707,29 @@ class RhythmGameUI:
         # Draw animated background
         self.draw_animated_background()
         
-        # Draw game header - Fixed positioning to ensure it's centered in its box
+        # Draw game header - Fixed positioning and styling to ensure proper display
         header_width = 300
-        self.draw_panel(20, 20, header_width, 60, "")
+        header_height = 60
+        self.draw_panel(20, 20, header_width, header_height, "")
         
         # Draw "Rhythm Sync Game" text centered in the header panel
         header_text = "Rhythm Sync Game"
         header_surf = SUBTITLE_FONT.render(header_text, True, WHITE)
-        header_rect = header_surf.get_rect(center=(20 + header_width // 2, 20 + 30))
+        header_rect = header_surf.get_rect(center=(20 + header_width // 2, 20 + header_height // 2))
         self.screen.blit(header_surf, header_rect)
         
-        # Draw current song info with modern panel - Fixed positioning and size
+        # Draw current song info with modern panel - Fixed position and adjusted width
         if self.game and self.game.current_song:
             # Increased width and adjusted position to prevent overlap with time bar
             now_playing_width = 450
             now_playing_x = SCREEN_WIDTH // 2 - now_playing_width // 2
-            self.draw_panel(now_playing_x, 20, now_playing_width, 100, "Now Playing")
+            now_playing_height = 100
+            self.draw_panel(now_playing_x, 20, now_playing_width, now_playing_height, "Now Playing")
             
             # Song title with shadow for better readability - Ensure it's centered
             song_text = f"{self.game.current_song}"
             song_surf = SUBTITLE_FONT.render(song_text, True, WHITE)
-            song_rect = song_surf.get_rect(center=(SCREEN_WIDTH // 2, 70))
+            song_rect = song_surf.get_rect(center=(now_playing_x + now_playing_width // 2, 70))
             
             # Text shadow
             shadow_surf = SUBTITLE_FONT.render(song_text, True, (0, 0, 0))
@@ -738,7 +740,7 @@ class RhythmGameUI:
             # BPM and difficulty on separate line for better spacing
             bpm_text = f"{self.game.current_bpm} BPM - {get_difficulty_name(self.game.current_bpm)}"
             bpm_surf = TEXT_FONT.render(bpm_text, True, GRAY)
-            bpm_rect = bpm_surf.get_rect(center=(SCREEN_WIDTH // 2, 100))
+            bpm_rect = bpm_surf.get_rect(center=(now_playing_x + now_playing_width // 2, 100))
             self.screen.blit(bpm_surf, bpm_rect)
         
         # Draw beat visualization with modern styling
@@ -817,7 +819,7 @@ class RhythmGameUI:
                 self.screen.blit(shadow_surf, shadow_rect)
                 self.screen.blit(clap_surf, clap_rect)
             
-            # Draw time remaining with modern progress bar - Moved to not overlap with Now Playing
+            # Draw time remaining with modern progress bar - Positioned further right to avoid overlap
             elapsed = current_time - self.game.start_time
             remaining = max(0, self.game.game_duration - elapsed)
             progress = 1 - (remaining / self.game.game_duration)
@@ -831,7 +833,8 @@ class RhythmGameUI:
             # Draw time text with better styling - Positioned to not overlap
             time_text = f"Time: {remaining:.1f}s"
             time_surf = TEXT_FONT.render(time_text, True, WHITE)
-            time_rect = time_surf.get_rect(right=bar_x - 10, centery=bar_y + bar_height//2)
+            # Position the time text more to the right
+            time_rect = time_surf.get_rect(center=(SCREEN_WIDTH - bar_width//2 - 30, bar_y + bar_height//2))
             self.screen.blit(time_surf, time_rect)
             
             # Draw background
@@ -994,32 +997,11 @@ class RhythmGameUI:
         self.screen.blit(on_beat_surf, on_beat_rect)
         y_offset += 40
         
-        # Accuracy
-        accuracy = (score['on_beat'] / score['claps']) * 100 if score['claps'] > 0 else 0
-        accuracy_text = f"Accuracy: {accuracy:.1f}%"
-        accuracy_surf = TEXT_FONT.render(accuracy_text, True, LIGHT_TEXT)
-        accuracy_rect = accuracy_surf.get_rect(center=(x + width // 2, y_offset))
-        self.screen.blit(accuracy_surf, accuracy_rect)
-        y_offset += 40
+        # No accuracy display
         
-        # Draw accuracy bar
-        bar_width = width - 40
-        bar_height = 15
-        bar_x = x + 20
-        bar_y = y_offset
+        # Draw rhythm timeline
+        self.draw_rhythm_timeline(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100, 600, 40)
         
-        # Background
-        pygame.draw.rect(self.screen, DARK_GRAY, (bar_x, bar_y, bar_width, bar_height), border_radius=bar_height//2)
-        
-        # Fill
-        if score['claps'] > 0:
-            accuracy_ratio = score['on_beat'] / score['claps']
-            fill_width = int(bar_width * accuracy_ratio)
-            
-            # Gradient fill based on accuracy
-            color = self.blend_colors(ACCENT_SECONDARY, SUCCESS_COLOR, accuracy_ratio)
-            pygame.draw.rect(self.screen, color, (bar_x, bar_y, fill_width, bar_height), border_radius=bar_height//2)
-    
     def draw_rhythm_timeline(self, x, y, width, height):
         """Draw a timeline showing recent beats and player claps."""
         # Draw timeline background
@@ -1272,31 +1254,7 @@ class RhythmGameUI:
             
             y_offset += 40
         
-        # Draw accuracy percentage
-        if score['claps'] > 0:
-            accuracy = (score['on_beat'] / score['claps']) * 100
-            accuracy_text = f"Accuracy: {accuracy:.1f}%"
-            accuracy_surf = TEXT_FONT.render(accuracy_text, True, WHITE)
-            accuracy_rect = accuracy_surf.get_rect(center=(x + width // 2, y_offset))
-            self.screen.blit(accuracy_surf, accuracy_rect)
-            y_offset += 40
-            
-            # Draw accuracy bar
-            bar_width = width - 40
-            bar_height = 15
-            bar_x = x + 20
-            bar_y = y_offset
-            
-            # Background
-            pygame.draw.rect(self.screen, DARK_GRAY, (bar_x, bar_y, bar_width, bar_height), border_radius=bar_height//2)
-            
-            # Fill
-            accuracy_ratio = score['on_beat'] / score['claps']
-            fill_width = int(bar_width * accuracy_ratio)
-            
-            # Gradient fill based on accuracy
-            color = self.blend_colors(ACCENT_SECONDARY, SUCCESS_COLOR, accuracy_ratio)
-            pygame.draw.rect(self.screen, color, (bar_x, bar_y, fill_width, bar_height), border_radius=bar_height//2)
+        # No accuracy display
         
     def draw_error(self):
         """Draw error screen with modern styling."""

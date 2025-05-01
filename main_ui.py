@@ -346,8 +346,8 @@ class RhythmGameUI:
         
         # Tempo mode radio buttons - positioned for better spacing
         self.tempo_radio_buttons = [
-            RadioButton(SCREEN_WIDTH * 3 // 4 - 150, 350, 12, "Slow → Medium → Fast", "tempo", "slow", True),
-            RadioButton(SCREEN_WIDTH * 3 // 4 - 150, 400, 12, "Medium → Fast", "tempo", "medium", False)
+            RadioButton(SCREEN_WIDTH * 3 // 4 - 100, 350, 12, "Slow → Medium → Fast", "tempo", "slow", True),
+            RadioButton(SCREEN_WIDTH * 3 // 4 - 100, 400, 12, "Medium → Fast", "tempo", "medium", False)
         ]
         
         # Game UI buttons
@@ -707,14 +707,24 @@ class RhythmGameUI:
         # Draw animated background
         self.draw_animated_background()
         
-        # Draw game header
-        self.draw_panel(20, 20, 300, 60, "Rhythm Sync Game")
+        # Draw game header - Fixed positioning to ensure it's centered in its box
+        header_width = 300
+        self.draw_panel(20, 20, header_width, 60, "")
         
-        # Draw current song info with modern panel
+        # Draw "Rhythm Sync Game" text centered in the header panel
+        header_text = "Rhythm Sync Game"
+        header_surf = SUBTITLE_FONT.render(header_text, True, WHITE)
+        header_rect = header_surf.get_rect(center=(20 + header_width // 2, 20 + 30))
+        self.screen.blit(header_surf, header_rect)
+        
+        # Draw current song info with modern panel - Fixed positioning and size
         if self.game and self.game.current_song:
-            self.draw_panel(SCREEN_WIDTH // 2 - 250, 20, 500, 100, "Now Playing")
+            # Increased width and adjusted position to prevent overlap with time bar
+            now_playing_width = 450
+            now_playing_x = SCREEN_WIDTH // 2 - now_playing_width // 2
+            self.draw_panel(now_playing_x, 20, now_playing_width, 100, "Now Playing")
             
-            # Song title with shadow for better readability
+            # Song title with shadow for better readability - Ensure it's centered
             song_text = f"{self.game.current_song}"
             song_surf = SUBTITLE_FONT.render(song_text, True, WHITE)
             song_rect = song_surf.get_rect(center=(SCREEN_WIDTH // 2, 70))
@@ -807,16 +817,22 @@ class RhythmGameUI:
                 self.screen.blit(shadow_surf, shadow_rect)
                 self.screen.blit(clap_surf, clap_rect)
             
-            # Draw time remaining with modern progress bar
+            # Draw time remaining with modern progress bar - Moved to not overlap with Now Playing
             elapsed = current_time - self.game.start_time
             remaining = max(0, self.game.game_duration - elapsed)
             progress = 1 - (remaining / self.game.game_duration)
             
-            # Draw progress bar with better styling
+            # Draw progress bar with better styling - Moved to right side with more space
             bar_width = 300
             bar_height = 20
             bar_x = SCREEN_WIDTH - bar_width - 30
             bar_y = 30
+            
+            # Draw time text with better styling - Positioned to not overlap
+            time_text = f"Time: {remaining:.1f}s"
+            time_surf = TEXT_FONT.render(time_text, True, WHITE)
+            time_rect = time_surf.get_rect(right=bar_x - 10, centery=bar_y + bar_height//2)
+            self.screen.blit(time_surf, time_rect)
             
             # Draw background
             pygame.draw.rect(self.screen, DARK_GRAY, (bar_x, bar_y, bar_width, bar_height), border_radius=bar_height//2)
@@ -832,12 +848,6 @@ class RhythmGameUI:
                 
                 # Round the corners of the fill
                 pygame.draw.rect(self.screen, WHITE, (bar_x, bar_y, fill_width, bar_height), 1, border_radius=bar_height//2)
-            
-            # Draw time text with better styling
-            time_text = f"Time: {remaining:.1f}s"
-            time_surf = TEXT_FONT.render(time_text, True, WHITE)
-            time_rect = time_surf.get_rect(right=bar_x - 10, centery=bar_y + bar_height//2)
-            self.screen.blit(time_surf, time_rect)
             
             # Draw rhythm timeline
             self.draw_rhythm_timeline(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100, 600, 40)
